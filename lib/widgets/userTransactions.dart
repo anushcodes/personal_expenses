@@ -29,7 +29,7 @@ class _UserTransactionsState extends State<UserTransactions> {
     return Container(
       child: Column(
         children: [
-          TextInput(addTransaction: _addNewTransaction),
+          TextInputs(addTransaction: _addNewTransaction),
           TransactionList(transactions:_userTransactions),
         ],
       ),

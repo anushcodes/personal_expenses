@@ -36,26 +36,26 @@ class Chart extends StatelessWidget {
   Widget build(BuildContext context) {
     // print(groupedTransactionsValues);
     return Card(
-      elevation: 6,
-      margin: EdgeInsets.all(20),
-      child: Padding(
-        padding: EdgeInsets.all(10),
-        child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: groupedTransactionsValues.map((data) {
-          //return Text('${data['day']}: ${data['amount']}');
-          return Flexible(
-            fit: FlexFit.tight,
-            child: ChartBar(
-                label: data['day'] as String,
-                spendingAmount: data['amount'] as double,
-                spendingPercentage: totalSpending == 0
-                    ? 0
-                    : (data['amount'] as double) / totalSpending),
-          );
-                  // If the spending amount is 0 and totalSpending is 0 (occurs only before the first entry of the week.), Runtime error is faced. So use 0% if spending amount is 0;
-        }).toList()),
-      ),
-    );
+        elevation: 6,
+        margin: EdgeInsets.all(20),
+        child: Padding(
+          padding: EdgeInsets.all(10),
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: groupedTransactionsValues.map((data) {
+            //return Text('${data['day']}: ${data['amount']}');
+            return Flexible(
+              fit: FlexFit.tight,
+              child: ChartBar(
+                  label: data['day'] as String,
+                  spendingAmount: data['amount'] as double,
+                  spendingPercentage: totalSpending == 0
+                      ? 0
+                      : (data['amount'] as double) / totalSpending),
+            );
+                    // If the spending amount is 0 and totalSpending is 0 (occurs only before the first entry of the week.), Runtime error is faced. So use 0% if spending amount is 0;
+          }).toList()),
+        ),
+      );
   }
 }

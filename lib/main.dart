@@ -1,12 +1,18 @@
+import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import './widgets/textInput.dart';
 import './models/transaction.dart';
 import './widgets/transactionList.dart';
 import './widgets/chart.dart';
+import 'package:flutter/services.dart';
+
 void main() {
+  //WidgetsFlutterBinding.ensureInitialized();
+  //SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]); // Preferred Orientation must be followed.
   runApp(const MyApp());
 }
-
+// Uncomment the platform check code to use in IOS
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -37,9 +43,9 @@ class _MyHomePageState extends State<MyHomePage> {
     // Transaction(
     //     id: "t2", title: "New Shirt", amount: 1000, date: DateTime.now()),
   ];
-
-  List<Transaction> get _recentTransactions{
-    return _userTransactions.where((tx){
+  bool _showChart = false;
+  List<Transaction> get _recentTransactions {
+    return _userTransactions.where((tx) {
       return tx.date!.isAfter(DateTime.now().subtract(const Duration(days: 7)));
     }).toList(); // can use as List<Transactions> or .toList(); .toList() is better if type casted to List<Object>
     //getter is just like functions that return something and no parameters passed but the variables used are static-scoped variables
@@ -57,52 +63,115 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _deleteTransaction(String id){
+  void _deleteTransaction(String id) {
     setState(() {
-      _userTransactions.removeWhere((tx){
+      _userTransactions.removeWhere((tx) {
         return tx.id == id;
       });
     });
   }
+
   void _startAddNewTransaction(BuildContext ctx) {
     // Shows a bottom to up modal sheet
     showModalBottomSheet(
         context: ctx,
         builder: (_) {
           return GestureDetector(
-            child: TextInput(addTransaction: _addNewTransaction),
-            onTap: () => {},//Tapping on the modal screen should not close the modal
-            behavior: HitTestBehavior.opaque, 
+            child: TextInputs(addTransaction: _addNewTransaction),
+            onTap: () =>
+                {}, //Tapping on the modal screen should not close the modal
+            behavior: HitTestBehavior.opaque,
           );
         });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Personal Expenses",
-          style:
-              TextStyle(fontFamily: 'Quicksand', fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-              onPressed: () => _startAddNewTransaction(context),
-              icon: Icon(Icons.add)),
-        ],
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+    final PreferredSizeWidget appBar = /*Platform.isIOS? CupertinoNavigationBar(
+      middle: const Text(
+        "Personal Expenses",
+        style: TextStyle(fontFamily: 'Quicksand', fontWeight: FontWeight.bold),
       ),
-      body: Column(
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Chart(recentTransactions: _recentTransactions),
-          TransactionList(transactions: _userTransactions, deleteTx: _deleteTransaction,),
+        GestureDetector(
+          child: Icon(CupertinoIcons.add),
+          onTap: ()=> _startAddNewTransaction(context),
+        )
+      ]),
+    )as PreferredSizeWidget:*/AppBar(
+      title: const Text(
+        "Personal Expenses",
+        style: TextStyle(fontFamily: 'Quicksand', fontWeight: FontWeight.bold),
+      ),
+      actions: [
+        IconButton(
+            onPressed: () => _startAddNewTransaction(context),
+            icon: Icon(Icons.add)),
+      ],
+    )as PreferredSizeWidget;
+    final transactionListWidget = Container(
+      height:
+          (MediaQuery.of(context).size.height - appBar.preferredSize.height) *
+              0.7,
+      child: TransactionList(
+        transactions: _userTransactions,
+        deleteTx: _deleteTransaction,
+      ),
+    );
+
+    final appBody = SafeArea(child:Column(
+        children: [
+          if (isLandscape)
+            Container(
+              height: (MediaQuery.of(context).size.height -
+                      appBar.preferredSize.height) *
+                  0.2,
+              child:
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Text("Show Chart",style: Theme.of(context).textTheme.titleMedium,),
+                Switch.adaptive(   //adaptive will use the platform available ui (IOS or Android Specific)
+                    activeColor: Theme.of(context).accentColor,
+                    value: _showChart,
+                    onChanged: (value) {
+                      setState(() {
+                        _showChart = value;
+                      });
+                    })
+              ]),
+            ),
+          if (!isLandscape)
+            Container(
+                height: (MediaQuery.of(context).size.height -
+                        appBar.preferredSize.height) *
+                    0.3,
+                child: Chart(recentTransactions: _recentTransactions)),
+          if (!isLandscape) transactionListWidget,
+          if (isLandscape)
+            _showChart
+                ? Container(
+                    height: (MediaQuery.of(context).size.height -
+                            appBar.preferredSize.height) *
+                        0.7,
+                    child: Chart(recentTransactions: _recentTransactions))
+                : transactionListWidget,
         ],
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-      ),
+      ));
+    return /*Platform.isIOS? CupertinoPageScaffold(
+      child: appBody,
+      navigationBar: appBar as ObstructingPreferredSizeWidget?,
+    ):*/Scaffold(
+      appBar: appBar,
+      body: appBody,
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterFloat,
-      floatingActionButton: FloatingActionButton(
+      // Use the platform check while testing in physical devices and emulators. It doesn't work while using in chrome.
+      floatingActionButton: /*Platform.isIOS? Container() :*/ FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () => _startAddNewTransaction(context),
       ),

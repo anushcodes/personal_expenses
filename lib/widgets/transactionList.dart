@@ -8,15 +8,16 @@ class TransactionList extends StatelessWidget {
   TransactionList({required this.transactions,this.deleteTx});
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 300,
-      child: transactions.isEmpty? Column(
+    return transactions.isEmpty? LayoutBuilder(builder: (context,constraints){
+      return Column(
         children: [
           Text("No Transactions yet",style: TextStyle(fontFamily: 'Quicksand',fontWeight: FontWeight.bold),),
           SizedBox(height: 50,),
-          Container(height:200,child: Image.asset('assets/images/waiting.png',fit: BoxFit.cover,)),
+          Container(height:constraints.maxHeight*0.6,child: Image.asset('assets/images/waiting.png',fit: BoxFit.cover,)),
         ],
-      ) :ListView.builder( 
+      ); 
+    })
+    :ListView.builder( 
         //ListView loads all list items at once. So we might face performance issues whereas ListView.builder uses lazy loading
         //mainAxisAlignment: MainAxisAlignment.start,
         //crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -76,7 +77,6 @@ class TransactionList extends StatelessWidget {
           );
         },
         itemCount: transactions.length,
-      ),
     );
   }
 }

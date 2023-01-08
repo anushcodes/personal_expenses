@@ -1,15 +1,18 @@
+import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../widgets/adaptive_flat_button.dart';
 
-class TextInput extends StatefulWidget {
+class TextInputs extends StatefulWidget {
   final Function addTransaction;
-  TextInput({required this.addTransaction});
+  TextInputs({required this.addTransaction});
 
   @override
-  State<TextInput> createState() => _TextInputState();
+  State<TextInputs> createState() => _TextInputsState();
 }
 
-class _TextInputState extends State<TextInput> {
+class _TextInputsState extends State<TextInputs> {
   final _titleController = TextEditingController();
   //Text Editing Controller is used to access Input text from user
   final _amountController = TextEditingController();
@@ -38,70 +41,69 @@ class _TextInputState extends State<TextInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Container(
-        margin: EdgeInsets.all(20),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.end,
-            //mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              TextField(
-                decoration: InputDecoration(labelText: "Enter Title"),
-                controller: _titleController,
-                onSubmitted: (_) => widget.addTransaction(_titleController.text,
-                    double.parse(_amountController.text)),
-                // onChanged: (val){
-                //   titleInput = val;
-                // },
-              ),
-              TextField(
-                decoration: InputDecoration(labelText: "Enter Amount"),
-                controller: _amountController,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                onSubmitted: (_) => widget.addTransaction(
-                  _titleController.text,
-                  double.parse(_amountController.text),
+    return SingleChildScrollView(
+      child: Card(
+        child: Container(
+          margin: EdgeInsets.only(
+            top: 10,
+            left: 10,
+            right: 10,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 10
+          ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.end,
+              //mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                TextField(
+                  decoration: InputDecoration(labelText: "Enter Title"),
+                  controller: _titleController,
+                  onSubmitted: (_) => widget.addTransaction(_titleController.text,
+                      double.parse(_amountController.text)),
+                  // onChanged: (val){
+                  //   titleInput = val;
+                  // },
                 ),
-
-                // onChanged: (val){
-                //   amountInput = val;
-                // },
-              ),
-              Container(
-                height: 70,
-                child: Row(
-                  children: [
-                    Flexible(fit: FlexFit.tight,flex: 1,child: Text(_selectedDate.isAfter(DateTime.now())?"No date chosen": "Picked Date : ${DateFormat.yMd().format(_selectedDate)}")),
-                    // Date to String conversion is done using format() constructor of DateFormat.
-                    TextButton(
-                      onPressed: _presentDatePicker,
-                      child: Text(
-                        "Choose Date",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  //print(titleController.text);
-                  //print(enteredTitle);
-                  //print(enteredAmount);
-                  //print(amountController.text);
-                  widget.addTransaction(_titleController.text,
-                      double.parse(_amountController.text),_selectedDate);
-                  Navigator.of(context).pop();
-                },
-                child: Container(
-                  child: Text(
-                    "Add Transaction",
+                TextField(
+                  decoration: InputDecoration(labelText: "Enter Amount"),
+                  controller: _amountController,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  onSubmitted: (_) => widget.addTransaction(
+                    _titleController.text,
+                    double.parse(_amountController.text),
                   ),
-                  margin: EdgeInsets.all(20),
+    
+                  // onChanged: (val){
+                  //   amountInput = val;
+                  // },
                 ),
-              ),
-            ]),
+                Container(
+                  height: 70,
+                  child: Row(
+                    children: [
+                      Flexible(fit: FlexFit.tight,flex: 1,child: Text(_selectedDate.isAfter(DateTime.now())?"No date chosen": "Picked Date : ${DateFormat.yMd().format(_selectedDate)}")),
+                      // Date to String conversion is done using format() constructor of DateFormat.
+                      AdaptiveFlatButton(text: "Choose Date", handler: _presentDatePicker)
+                    ],
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    //print(titleController.text);
+                    //print(enteredTitle);
+                    //print(enteredAmount);
+                    //print(amountController.text);
+                    widget.addTransaction(_titleController.text,
+                        double.parse(_amountController.text),_selectedDate);
+                    Navigator.of(context).pop();
+                  },
+                  child: Container(
+                    child: Text(
+                      "Add Transaction",
+                    ),
+                    margin: EdgeInsets.all(20),
+                  ),
+                ),
+              ]),
+        ),
       ),
     );
   }
